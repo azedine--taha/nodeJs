@@ -36,6 +36,8 @@ async function candle(symbol) {
         let { o: open, h: high, l: low, c: close, v: volume, n: trades, i: interval, x: isFinal, q: quoteVolume, V: buyVolume, Q: quoteBuyVolume } = ticks;
 
         const pourcentage = ((open - close) / close) * 100
+        console.log('its ok');
+
         if (pourcentage > 10) {
             //console.info(symbol + " " + interval + " candlestick update" + "% " + pourcentage);
             notifier.notify({
