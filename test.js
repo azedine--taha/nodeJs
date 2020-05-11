@@ -6,24 +6,20 @@ const arr = [
 
 ]
 
-var a = reduce(arr)
+var a = arr.reduce((accumulator, current) => {
+    if (checkIfAlreadyExist(current)) {
+        return accumulator;
+    } else {
+        return [...accumulator, current];
+    }
 
-function reduce(array) {
-    array.reduce((accumulator, current) => {
-        if (checkIfAlreadyExist(current)) {
-            return accumulator;
-        } else {
-            return [...accumulator, current];
-        }
-    })
-}
 
-function checkIfAlreadyExist(currentVal) {
-    return accumulator.some((item) => {
-        return (item.symbol === currentVal.symbol &&
-            item.PRCENTAGE === currentVal.PRCENTAGE);
-    });
-}
+    function checkIfAlreadyExist(currentVal) {
+        return accumulator.some((item) => {
+            return (item.symbol === currentVal.symbol &&
+                item.PRCENTAGE === currentVal.PRCENTAGE);
+        });
+    }
 }, []);
 
-console.log(a);
+console.log(AudioTrackList);
