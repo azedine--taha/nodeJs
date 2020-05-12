@@ -1,8 +1,13 @@
-
+const express = require('express')
+const serverless = require('serverless-http')
+const app = express()
+const router = express.Router();
 const Binance = require('node-binance-api');
 var notifier = require('node-notifier')
 const open = require('open');
 const symbols = require('./constants')
+
+//app.use('/binance', binance)
 
 
 const binance = new Binance().options({
@@ -16,18 +21,6 @@ const binance = new Binance().options({
     }
 })
 
-/*
-async function test() {
-    await binance.useServerTime();
-    binance.balance((error, balances) => {
-        if (error) return console.error(error);
-        console.info("balances()", balances);
-        //console.info("BNB balance: ", balances.BNB.available);
-    });
-}
-test() */
-
-
 
 async function candle(symbol) {
 
@@ -35,10 +28,10 @@ async function candle(symbol) {
         let { e: eventType, E: eventTime, s: symbol, k: ticks } = candlesticks;
         let { o: open, h: high, l: low, c: close, v: volume, n: trades, i: interval, x: isFinal, q: quoteVolume, V: buyVolume, Q: quoteBuyVolume } = ticks;
 
-        const pourcentage = ((open - close) / close) * 100
+        const pourcentage = ((high - open) / open) * 100;
         console.log('its ok');
 
-        if (pourcentage > 10) {
+        if (pourcentage > 1) {
             //console.info(symbol + " " + interval + " candlestick update" + "% " + pourcentage);
             notifier.notify({
                 title: symbol,
@@ -50,21 +43,8 @@ async function candle(symbol) {
 
 }
 
-async function ticker() {
-    let ticker = await binance.prices();
-    console.info(`Price of wabi: ${JSON.stringify(ticker.WABIBTC)}`);
 
-    if (ticker.BTCUSDT < 9400) {
-        notifier.notify({
-            title: "BTC",
-            message: "Dump",
-            wait: true
-        });
-    }
-}
-
-//ticker()
-function test() {
+router.get('/', (req, resp, next) => {
     const data = symbols.coins;
     data.forEach(symbol => {
         try {
@@ -73,24 +53,11 @@ function test() {
             console.log(err + " " + symbol);
 
         }
-    })
-}
+    }).then(
+        resp.json({ 'hi': 'binance' })
+    ).catch(err => err)
+})
 
-setInterval(test, 15000);
+app.use('/.netlify/functions/api', router)
 
-// binance.exchangeInfo((err, data) => {
-//     if (err) {
-//         console.log('exchangeInfo error -> ' + err)
-//     }
-//     let minimums = {};
-//     try {
-//         let filters = data.symbols.filter(d => {
-//             if (d.symbol.includes('USD')) {
-//                 console.log(d.symbol);
-//             }
-//         })
-
-//     } catch (error) {
-//         console.log('Glogal Error -> ' + error)
-//     }
-// })
+module.exports.handler = serverless(app)
